@@ -5,6 +5,7 @@
 void WebSocketCallback(int id, const char *message, int size, void *ptr)
 {
     Peer* peer=(Peer*)ptr;
+    printf("current state : %d\n", peer->state);
 	printf("%s\n",message);
 	
 
@@ -14,13 +15,11 @@ void WebSocketCallback(int id, const char *message, int size, void *ptr)
                 if (strcmp("stream",message)==0)
 	            {
                     CreateTrackAndSendOffer(peer);
-                    //create and send the offer   
-		            peer->state=AWAITING_ANSWER;
 	            }
     			//todo
 				break;
 		case  AWAITING_ANSWER:
-					//todo
+                    ProcessAnswer(peer,message);
 				break;
 		case  STREAMING:
 					//todo

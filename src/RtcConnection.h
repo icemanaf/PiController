@@ -21,4 +21,6 @@ int RtcClose(Peer* peer);
 
 int CreateTrackAndSendOffer(Peer* peer);
 
+int ProcessAnswer(Peer* peer,const char* answer);
+
 #endif

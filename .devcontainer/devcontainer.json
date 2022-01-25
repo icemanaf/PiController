@@ -2,4 +2,5 @@
   "build": { "dockerfile": "Dockerfile" },
   "extensions": ["dbaeumer.vscode-eslint"],
   "forwardPorts": [35000]
+  "mounts": ["source=/d/Concepts/libdatachannel,target=/workspaces/libdatachannel,type=bind,consistency=cached"]
 }

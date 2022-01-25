@@ -1,7 +1,8 @@
 #include "RtcConnection.h"
 
 
-static void RTC_API gatheringStateCallback(int pc, rtcGatheringState state, void *ptr) {
+static void RTC_API gatheringStateCallback(int pc, rtcGatheringState state, void *ptr)
+ {
 	Peer *peer = (Peer *)ptr;
 	printf("Gathering state %s: %d\n", "answerer", state);
 	if (state==RTC_GATHERING_COMPLETE)
@@ -15,10 +16,24 @@ static void RTC_API gatheringStateCallback(int pc, rtcGatheringState state, void
 		rtcGetLocalDescription(peer->pc, offer, sizeof(offer));
 		printf("============\n\n%s\n",offer);
 		rtcSendMessage(peer->wsSocket,offer,-1);
-		
+		peer->state=AWAITING_ANSWER;
 	}
 
 }
+
+
+static void RTC_API stateChangeCallback(int pc, rtcState state, void *ptr) 
+{
+	Peer *peer = (Peer *)ptr;
+	peer->state = state;
+	printf("State %s: %d\n", "answerer", state);
+	
+	if (state==RTC_CONNECTED)
+	{
+		printf("/n/nConnected!!/n");
+	}
+}
+
 
 
 
@@ -28,12 +43,17 @@ int RtcOpen(Peer* peer)
 	rtcConfiguration config;
 	memset(&config, 0, sizeof(config));
 	config.disableAutoNegotiation=TRUE;
+	config.bindAddress="127.0.0.1";
+	config.portRangeBegin=35001;
+	config.portRangeEnd=35099;
 
 	peer->pc = rtcCreatePeerConnection(&config);
     if (peer->pc<0)
         return -1;
     
 	rtcSetUserPointer(peer->pc, peer);
+	rtcSetGatheringStateChangeCallback(peer->pc, gatheringStateCallback);
+	rtcSetStateChangeCallback(peer->pc, stateChangeCallback);
 
     return 0;
 }
@@ -47,7 +67,7 @@ int RtcClose(Peer* peer)
 int CreateTrackAndSendOffer(Peer* peer)
 {
 	//create video track
-	rtcSetGatheringStateChangeCallback(peer->pc, gatheringStateCallback);
+	
 	rtcTrackInit trackInit;
 	memset(&trackInit, 0, sizeof(trackInit));
 	trackInit.direction=RTC_DIRECTION_SENDONLY;
@@ -61,7 +81,15 @@ int CreateTrackAndSendOffer(Peer* peer)
 	printf("\n\ntrack result %d\n\n",peer->track);
 
 	//create data channel
-	 peer->dc=rtcCreateDataChannel(peer->pc, "datachannel");
-	 printf("\ndatachannel %d\n\n",peer->dc);
- 	 rtcSetLocalDescription(peer->pc,"offer");
+	 //peer->dc=rtcCreateDataChannel(peer->pc, "datachannel");
+	 rtcSetLocalDescription(peer->pc,"offer");
+	
+	
+}
+
+
+int ProcessAnswer(Peer* peer,const char* answer)
+{
+	printf("Processing answer\n");
+	rtcSetRemoteDescription(peer->pc, answer, "answer");
 }

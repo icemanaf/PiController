@@ -14,9 +14,10 @@ RUN apt-get install gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstre
 gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio  pkg-config cmake python3 build-essential wget unzip -y
 
 
-EXPOSE 35000-35100
+EXPOSE 35000-35100/udp
 
 ENV DEBIAN_FRONTEND=""
+
 
 CMD ["/bin/bash"]
 
